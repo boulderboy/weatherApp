@@ -26,7 +26,17 @@ final class WeatherNetworkClient: Networking {
             return nil
         }
 
-    
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = request.method.rawValue
+        urlRequest.allHTTPHeaderFields = request.headers
+
+        if let body = request.body {
+            do {
+                urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
+            } catch {
+                completion(.failure(NetworkRequestError.serializationError))
+            }
+        }
 
         let dataTask = session.dataTask(with: urlRequest) { data, urlResponse, error in
             if let error = error {
